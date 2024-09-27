@@ -1,0 +1,306 @@
+<div id="exchange-calculator">
+  <h2>Buy and Sell Currency Calculator</h2>
+  <div class="calculator-section">
+    <label class="label">Sell / Send</label>
+    <div class="input-container">
+      <span class="currency-symbol">$</span>
+      <input type="number" id="amount-sell" name="amount-sell" required>
+      <select id="currency-sell" class="currency-select">
+        <!-- Currency options will be dynamically populated -->
+      </select>
+    </div>
+  </div>
+  <div class="calculator-section">
+    <label class="label">Buy / Receive</label>
+    <div class="input-container">
+      <span class="currency-symbol">$</span>
+      <input type="number" id="amount-buy" name="amount-buy" required>
+      <select id="currency-buy" class="currency-select">
+        <!-- Currency options will be dynamically populated -->
+      </select>
+    </div>
+  </div>
+  <div class="rate-info">
+    <span class="flashing-circle"></span>
+    <span class="rate-text">Live and transparent rates</span>
+  </div>
+  <div class="scrolling-rates-container">
+    <div class="scrolling-rates" id="scrolling-rates">
+      <!-- Rates will be dynamically populated -->
+    </div>
+  </div>
+  <div class="rate-note">All rates are relative to USD</div>
+</div>
+
+<style>
+  #exchange-calculator {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow:  0px 0px 15px 1px rgba(0, 0, 0, 0.1);
+  }
+
+  .calculator-section {
+    margin-bottom: 20px;
+  }
+
+  .label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .input-container {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+
+  .currency-symbol {
+    font-size: 20px;
+    margin-right: 5px;
+  }
+
+  input {
+    flex: 1;
+    padding: 8px;
+    font-size: 16px;
+    border: none;
+    outline: none;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .currency-select {
+    padding: 8px;
+    font-size: 16px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    width: auto;
+    margin-left: 10px;
+  }
+
+  .currency-option {
+    display: flex;
+    align-items: center;
+  }
+
+  .currency-option img {
+    margin-right: 10px;
+    width: 25px;
+    height: auto;
+  }
+
+  .rate-info {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .flashing-circle {
+    width: 10px;
+    height: 10px;
+    background-color: blue;
+    border-radius: 50%;
+    margin-right: 10px;
+    animation: flash 1s infinite;
+  }
+
+  @keyframes flash {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .rate-text {
+    font-size: 14px;
+    color: #333;
+  }
+
+  .scrolling-rates-container {
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    margin-top: 20px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+  }
+
+  .scrolling-rates {
+    display: flex;
+    animation: scroll 30s linear infinite;
+  }
+
+  .scrolling-rates div {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap; /* Prevent text wrapping */
+    margin-right: 50px; /* Adjusted spacing */
+    padding: 10px; /* Adjusted padding */
+    font-size: 14px;
+    color: #333;
+  }
+
+  .scrolling-rates img {
+    margin-right: 10px;
+    width: 25px;
+    height: auto;
+    vertical-align: middle;
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  .rate-note {
+    margin-top: 10px;
+    font-size: 12px;
+    text-align: center;
+    color: #666;
+  }
+
+  @media screen and (max-width: 600px) {
+    #exchange-calculator {
+      max-width: 90vw;
+      width: 100%;
+      padding: 10px;
+    }
+
+    .input-container {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .currency-symbol {
+      margin-right: 0;
+      margin-bottom: 5px;
+    }
+
+    .currency-select {
+      margin-left: 0;
+      margin-bottom: 5px;
+    }
+
+    .scrolling-rates {
+      animation: scroll 15s linear infinite; /* Adjusted speed for smaller screens */
+    }
+
+    .scrolling-rates div {
+      margin-right: 20px; /* Adjusted spacing for mobile */
+      padding: 5px; /* Adjusted padding for mobile */
+      font-size: 12px; /* Adjusted font size for mobile */
+    }
+
+    .rate-note {
+      font-size: 10px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const exchangeRates = {
+      "USDT": 1.00  // Accurate value for USDT
+    };
+    const currencySellSelect = document.getElementById('currency-sell');
+    const currencyBuySelect = document.getElementById('currency-buy');
+    const amountSellInput = document.getElementById('amount-sell');
+    const amountBuyInput = document.getElementById('amount-buy');
+    const scrollingRates = document.getElementById('scrolling-rates');
+
+    const allowedCurrencies = [
+      { code: 'USD', name: 'United States Dollar', flag: 'https://flagcdn.com/us.svg' },
+      { code: 'EUR', name: 'Euro', flag: 'https://flagcdn.com/eu.svg' },
+      { code: 'GBP', name: 'British Pound', flag: 'https://flagcdn.com/gb.svg' },
+      { code: 'CAD', name: 'Canadian Dollar', flag: 'https://flagcdn.com/ca.svg' },
+      { code: 'IRR', name: 'Iranian Rial', flag: 'https://flagcdn.com/ir.svg' },
+      { code: 'USDT', name: 'Tether', flag: 'https://cryptologos.cc/logos/tether-usdt-logo.svg' }
+    ];
+
+    async function fetchExchangeRates() {
+      try {
+        const response = await fetch('https://openexchangerates.org/api/latest.json?app_id=b8d61ccb33654354bf84e0b6ce27f033');
+        const data = await response.json();
+        const rates = data.rates;
+
+        allowedCurrencies.forEach(currency => {
+          if (currency.code !== 'USDT') {
+            exchangeRates[currency.code] = rates[currency.code];
+          }
+
+          const optionSell = document.createElement('option');
+          optionSell.value = currency.code;
+          optionSell.className = 'currency-option';
+          optionSell.innerHTML = `<img src="${currency.flag}" alt="${currency.name}" width="25"> ${currency.code}`;
+          currencySellSelect.appendChild(optionSell);
+
+          const optionBuy = document.createElement('option');
+          optionBuy.value = currency.code;
+          optionBuy.className = 'currency-option';
+          optionBuy.innerHTML = `<img src="${currency.flag}" alt="${currency.name}" width="25"> ${currency.code}`;
+          currencyBuySelect.appendChild(optionBuy);
+
+          const rateDiv = document.createElement('div');
+          rateDiv.innerHTML = `<img src="${currency.flag}" alt="${currency.name}"> ${currency.name}: ${exchangeRates[currency.code].toFixed(2)}`;
+          scrollingRates.appendChild(rateDiv);
+        });
+      } catch (error) {
+        console.error('Failed to fetch exchange rates:', error);
+      }
+    }
+
+    function calculateSellToBuy() {
+      const currencySell = currencySellSelect.value;
+      const currencyBuy = currencyBuySelect.value;
+      const amountSell = parseFloat(amountSellInput.value);
+      if (!isNaN(amountSell) && currencySell && currencyBuy) {
+        const convertedAmount = (exchangeRates[currencyBuy] / exchangeRates[currencySell] * amountSell) * 0.99; // Apply -1% fee
+        amountBuyInput.value = convertedAmount.toFixed(2);
+      } else {
+        amountBuyInput.value = '';
+      }
+    }
+
+    function calculateBuyToSell() {
+      const currencySell = currencySellSelect.value;
+      const currencyBuy = currencyBuySelect.value;
+      const amountBuy = parseFloat(amountBuyInput.value);
+      if (!isNaN(amountBuy) && currencySell && currencyBuy) {
+        const convertedAmount = (exchangeRates[currencySell] / exchangeRates[currencyBuy] * amountBuy) * 1.00521; // Apply +0.521% fee
+        amountSellInput.value = convertedAmount.toFixed(2);
+      } else {
+        amountSellInput.value = '';
+      }
+    }
+
+    amountSellInput.addEventListener('input', calculateSellToBuy);
+    amountBuyInput.addEventListener('input', calculateBuyToSell);
+    currencySellSelect.addEventListener('change', calculateSellToBuy);
+    currencyBuySelect.addEventListener('change', calculateSellToBuy);
+
+    fetchExchangeRates();
+  });
+</script>
