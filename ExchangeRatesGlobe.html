@@ -96,7 +96,7 @@
 
     let exchangeRates = {};
 
-    fetch('https://openexchangerates.org/api/latest.json?app_id=ENTER_ID_HERE')
+    fetch('https://openexchangerates.org/api/latest.json?app_id=ENTER_ID_HERE') // Put your API key here
       .then(res => res.json())
       .then(data => {
         console.log('Exchange Rate Data:', data);
