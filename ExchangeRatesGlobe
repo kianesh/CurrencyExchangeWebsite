@@ -1,0 +1,157 @@
+<head>
+  <style>
+    body { 
+      margin: 0; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      background-color: transparent;
+      overflow-x: hidden;
+    }
+    #globeViz {
+      width: 40vw; 
+      height: 30vh;
+      position: relative; 
+      left: -28vw;
+      top: -33vh;
+      background-color: transparent;
+    }
+    @media screen and (max-width: 700px) {
+        #globeViz {
+            left: -10vw;
+            top: -10vh;
+            width: 15vw !important;
+            height: 15vh !important;
+        }
+    }
+  </style>
+  <script src="//unpkg.com/globe.gl"></script>
+</head>
+
+<body>
+  <div id="globeViz"></div>
+
+  <script>
+    const countryToCurrencyMap = {
+      "AFG": "AFN", "ALB": "ALL", "DZA": "DZD", "AND": "EUR", "AGO": "AOA", "ATG": "XCD",
+      "ARG": "ARS", "ARM": "AMD", "AUS": "AUD", "AUT": "EUR", "AZE": "AZN", "BHS": "BSD",
+      "BHR": "BHD", "BGD": "BDT", "BRB": "BBD", "BLR": "BYN", "BEL": "EUR", "BLZ": "BZD",
+      "BEN": "XOF", "BTN": "BTN", "BOL": "BOB", "BIH": "BAM", "BWA": "BWP", "BRA": "BRL",
+      "BRN": "BND", "BGR": "BGN", "BFA": "XOF", "BDI": "BIF", "CPV": "CVE", "KHM": "KHR",
+      "CMR": "XAF", "CAN": "CAD", "CAF": "XAF", "TCD": "XAF", "CHL": "CLP", "CHN": "CNY",
+      "COL": "COP", "COM": "KMF", "COG": "XAF", "CRI": "CRC", "HRV": "HRK", "CUB": "CUP",
+      "CYP": "EUR", "CZE": "CZK", "DNK": "DKK", "DJI": "DJF", "DMA": "XCD", "DOM": "DOP",
+      "ECU": "USD", "EGY": "EGP", "SLV": "USD", "GNQ": "XAF", "ERI": "ERN", "EST": "EUR",
+      "ETH": "ETB", "FJI": "FJD", "FIN": "EUR", "FRA": "EUR", "GAB": "XAF", "GMB": "GMD",
+      "GEO": "GEL", "DEU": "EUR", "GHA": "GHS", "GRC": "EUR", "GRD": "XCD", "GTM": "GTQ",
+      "GIN": "GNF", "GNB": "XOF", "GUY": "GYD", "HTI": "HTG", "HND": "HNL", "HUN": "HUF",
+      "ISL": "ISK", "IND": "INR", "IDN": "IDR", "IRN": "IRR", "IRQ": "IQD", "IRL": "EUR",
+      "ISR": "ILS", "ITA": "EUR", "JAM": "JMD", "JPN": "JPY", "JOR": "JOD", "KAZ": "KZT",
+      "KEN": "KES", "KIR": "AUD", "KOR": "KRW", "KWT": "KWD", "KGZ": "KGS", "LAO": "LAK",
+      "LVA": "EUR", "LBN": "LBP", "LSO": "LSL", "LBR": "LRD", "LBY": "LYD", "LIE": "CHF",
+      "LTU": "EUR", "LUX": "EUR", "MDG": "MGA", "MWI": "MWK", "MYS": "MYR", "MDV": "MVR",
+      "MLI": "XOF", "MLT": "EUR", "MHL": "USD", "MRT": "MRU", "MUS": "MUR", "MEX": "MXN",
+      "FSM": "USD", "MDA": "MDL", "MCO": "EUR", "MNG": "MNT", "MNE": "EUR", "MAR": "MAD",
+      "MOZ": "MZN", "MMR": "MMK", "NAM": "NAD", "NRU": "AUD", "NPL": "NPR", "NLD": "EUR",
+      "NZL": "NZD", "NIC": "NIO", "NER": "XOF", "NGA": "NGN", "NOR": "NOK", "OMN": "OMR",
+      "PAK": "PKR", "PLW": "USD", "PAN": "PAB", "PNG": "PGK", "PRY": "PYG", "PER": "PEN",
+      "PHL": "PHP", "POL": "PLN", "PRT": "EUR", "QAT": "QAR", "ROU": "RON", "RUS": "RUB",
+      "RWA": "RWF", "KNA": "XCD", "LCA": "XCD", "VCT": "XCD", "WSM": "WST", "SMR": "EUR",
+      "STP": "STN", "SAU": "SAR", "SEN": "XOF", "SRB": "RSD", "SYC": "SCR", "SLE": "SLL",
+      "SGP": "SGD", "SVK": "EUR", "SVN": "EUR", "SLB": "SBD", "SOM": "SOS", "ZAF": "ZAR",
+      "SSD": "SSP", "ESP": "EUR", "LKA": "LKR", "SDN": "SDG", "SUR": "SRD", "SWZ": "SZL",
+      "SWE": "SEK", "CHE": "CHF", "SYR": "SYP", "TJK": "TJS", "TZA": "TZS", "THA": "THB",
+      "TLS": "USD", "TGO": "XOF", "TON": "TOP", "TTO": "TTD", "TUN": "TND", "TUR": "TRY",
+      "TKM": "TMT", "TUV": "AUD", "UGA": "UGX", "UKR": "UAH", "ARE": "AED", "GBR": "GBP",
+      "USA": "USD", "URY": "UYU", "UZB": "UZS", "VUT": "VUV", "VAT": "EUR", "VEN": "VES",
+      "VNM": "VND", "YEM": "YER", "ZMB": "ZMW", "ZWE": "ZWL"
+    };
+
+    const MAX_ALTITUDE = 0.25;
+
+    const world = Globe()
+      (document.getElementById('globeViz'))
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+      .backgroundColor('rgba(255, 255, 255, 1)')
+      .pointOfView({ altitude: 2.8 }, 5000)
+      .polygonCapColor(() => 'rgba(155, 171, 217, 0.6)') // Use the same color for all countries
+      .polygonSideColor(() => 'rgba(0,36,61, 0.05)')
+      .polygonLabel(({ properties: d, id: countryCode }) => `
+          <b>${d.name} (${countryCode})</b> <br />
+          Exchange Rate: <i>${exchangeRates[countryToCurrencyMap[countryCode]] || 'N/A'}</i>
+        `)
+      .onZoom(() => false);
+      
+
+
+    const controls = world.controls();
+    controls.enableZoom = false;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.8;
+
+    controls.addEventListener('start', () => {
+      controls.autoRotate = false;
+      controls.update();
+    });
+
+    let exchangeRates = {};
+
+    fetch('https://openexchangerates.org/api/latest.json?app_id=ENTER_ID_HERE')
+      .then(res => res.json())
+      .then(data => {
+        console.log('Exchange Rate Data:', data);
+        exchangeRates = data.rates;
+
+        return fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json');
+      })
+      .then(res => res.json())
+      .then(countries => {
+        console.log('Countries Data:', countries);
+        let step = 196;
+        let polygonsData = countries.features.filter(d => d.id !== 'AQ');
+
+        function processCountries(startIndex) {
+          const subset = polygonsData.slice(startIndex, startIndex + step);
+          world.polygonsData(subset);
+          
+          subset.forEach(feat => {
+            const countryCode = feat.id;
+            const currencyCode = countryToCurrencyMap[countryCode];
+            const exchangeRate = exchangeRates[currencyCode];
+            if (!currencyCode || !exchangeRate) {
+              console.warn(`Missing data for country: ${countryCode}, currency: ${currencyCode}, exchange rate: ${exchangeRate}`);
+            } else {
+              console.log(`Processing country: ${countryCode}, currency: ${currencyCode}, exchange rate: ${exchangeRate}`);
+            }
+          });
+
+          setTimeout(() => {
+            world.polygonsTransitionDuration(4000)
+              .polygonAltitude(feat => {
+                const countryCode = feat.id;
+                const currencyCode = countryToCurrencyMap[countryCode];
+                const rate = exchangeRates[currencyCode];
+      
+                if (!rate) {
+                  console.warn(`No exchange rate data for ${countryCode} (${currencyCode})`);
+                  return 0.01;
+                }
+      
+                const altitude = Math.min(MAX_ALTITUDE, Math.max(0.01, Math.sqrt(rate) / 100));
+                console.log(`Setting altitude for ${countryCode} (${currencyCode}): ${altitude}`);
+                return altitude;
+              })
+              .polygonCapColor(() => 'rgba(155, 171, 217, 0.6)');
+          }, 2000);
+        }
+
+        processCountries(0);
+      })
+      .catch(error => console.error('Error fetching data:', error));
+      
+       
+
+    window.addEventListener('resize', updateGlobeVizSize);
+    updateGlobeVizSize(); 
+  </script>
+</body>
