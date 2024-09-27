@@ -8,11 +8,11 @@ These files are originally implemented into a Wordpress development environment 
 These widgets can be seen live on barexexchange.ca
 
 ## BuySellCurrency.html
-![Widget Image](CurrencyExchangeWebsite/images/barexexchange1.png)
+![Widget Image](images/barexexchange.png)
 This file contains code for a widget that calculates the buy and sell rates for different international currencies using the
 OpenExchangeRates API to perform live and accurate calculations.
 
 
 ## ExchangeRatesGlobe.html
-![Globe Image](.images/barexexchange.png)
+![Globe Image](images/barexexchange1.png)
 This file contains code for a globe widget that gives a visual representation of the exchange rates of almost all countries compared to the US Dollar. 
