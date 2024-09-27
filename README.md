@@ -13,4 +13,5 @@ OpenExchangeRates API to perform live and accurate calculations.
 
 
 ## ExchangeRatesGlobe.html
+.images/barexexchange.png
 This file contains code for a globe widget that gives a visual representation of the exchange rates of almost all countries compared to the US Dollar. 
